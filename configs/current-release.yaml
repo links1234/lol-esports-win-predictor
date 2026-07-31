@@ -1,0 +1,61 @@
+experiment_name: leaguepedia-2020-2026-current-release
+model_version: current-2026-release-v1
+random_seed: 20260730
+
+features:
+  feature_schema_version: point-in-time-v3
+  elo_initial_rating: 1500.0
+  elo_k_factor: 24.0
+  player_elo_k_factor: 12.0
+  form_window: 10
+  rate_prior_strength: 12.0
+  player_champion_prior_strength: 8.0
+  synergy_prior_strength: 24.0
+  matchup_prior_strength: 20.0
+
+splits:
+  validation_start_timestamp: 2026-01-01T00:00:00+00:00
+  test_start_timestamp: 2026-04-01T00:00:00+00:00
+  calibration_fraction_within_train: 0.10
+  refit_before_test: true
+
+models:
+  candidate_names:
+    - blue_side_base_rate
+    - elo_only
+    - team_roster_logistic
+    - draft_only_logistic
+    - legacy_logistic_regression
+    - legacy_gradient_boosted_trees
+    - elo_logistic_blend
+  logistic_c: 0.25
+  gradient_boosting_learning_rate: 0.04
+  gradient_boosting_max_iter: 180
+  gradient_boosting_max_leaf_nodes: 15
+  gradient_boosting_l2_regularization: 2.0
+  elo_logistic_blend_elo_weight: 0.30
+  production_calibration_fraction: 0.10
+
+backtest:
+  fold_count: 3
+  validation_fraction_per_fold: 0.10
+  test_fraction_per_fold: 0.10
+  bootstrap_iterations: 1000
+
+prediction:
+  stale_after_days: 14
+
+release_gate:
+  enabled: true
+  minimum_holdout_games: 750
+  minimum_holdout_series: 300
+  minimum_log_loss_improvement: 0.003
+  maximum_expected_calibration_error: 0.04
+  maximum_major_league_log_loss_regression: 0.01
+  major_leagues:
+    - Tencent LoL Pro League
+    - LoL Champions Korea
+    - LoL EMEA Championship
+    - League of Legends Championship Pacific
+    - League of Legends Championship Series
+    - Circuit Brazilian League of Legends

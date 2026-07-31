@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="620" viewBox="0 0 700 620" role="img" aria-labelledby="title desc">
+  <title id="title">Holdout calibration for the selected combined logistic model</title>
+  <desc id="desc">Observed blue win rate versus predicted blue win probability in ten bins over 5,257 held-out games.</desc>
+  <rect width="700" height="620" fill="#ffffff"/>
+  <text x="350" y="28" text-anchor="middle" font-family="sans-serif" font-size="20" fill="#172033">Holdout calibration, 5,257 games</text>
+  <line x1="80" y1="520" x2="580" y2="520" stroke="#172033" stroke-width="2"/>
+  <line x1="80" y1="520" x2="80" y2="20" stroke="#172033" stroke-width="2"/>
+  <line x1="80" y1="520" x2="580" y2="20" stroke="#8a94a6" stroke-width="2" stroke-dasharray="7 7"/>
+  <polyline points="117.6,471.2 158.0,439.1 206.7,416.1 256.5,338.7 305.7,298.9 355.6,241.9 404.4,186.7 452.9,154.2 502.8,92.8 542.9,68.4" fill="none" stroke="#3157d5" stroke-width="3"/>
+  <g fill="#3157d5" stroke="#ffffff" stroke-width="2">
+    <circle cx="117.6" cy="471.2" r="5"/>
+    <circle cx="158.0" cy="439.1" r="7"/>
+    <circle cx="206.7" cy="416.1" r="9"/>
+    <circle cx="256.5" cy="338.7" r="11"/>
+    <circle cx="305.7" cy="298.9" r="13"/>
+    <circle cx="355.6" cy="241.9" r="14"/>
+    <circle cx="404.4" cy="186.7" r="13"/>
+    <circle cx="452.9" cy="154.2" r="11"/>
+    <circle cx="502.8" cy="92.8" r="9"/>
+    <circle cx="542.9" cy="68.4" r="6"/>
+  </g>
+  <g font-family="sans-serif" font-size="12" fill="#4d586c" text-anchor="middle">
+    <text x="80" y="542">0.0</text><text x="180" y="542">0.2</text><text x="280" y="542">0.4</text><text x="380" y="542">0.6</text><text x="480" y="542">0.8</text><text x="580" y="542">1.0</text>
+  </g>
+  <g font-family="sans-serif" font-size="12" fill="#4d586c" text-anchor="end">
+    <text x="70" y="524">0.0</text><text x="70" y="424">0.2</text><text x="70" y="324">0.4</text><text x="70" y="224">0.6</text><text x="70" y="124">0.8</text><text x="70" y="24">1.0</text>
+  </g>
+  <text x="330" y="575" text-anchor="middle" font-family="sans-serif" font-size="15" fill="#172033">Mean predicted blue win probability</text>
+  <text x="22" y="270" text-anchor="middle" transform="rotate(-90 22 270)" font-family="sans-serif" font-size="15" fill="#172033">Observed blue win rate</text>
+  <line x1="470" y1="580" x2="510" y2="580" stroke="#8a94a6" stroke-width="2" stroke-dasharray="7 7"/>
+  <text x="520" y="585" font-family="sans-serif" font-size="12" fill="#4d586c">Perfect calibration</text>
+</svg>

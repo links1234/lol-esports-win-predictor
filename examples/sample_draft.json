@@ -1,0 +1,33 @@
+{
+  "request_schema_version": "2",
+  "match_timestamp": "2024-03-15T12:00:00Z",
+  "league": "LCK",
+  "tournament": "Synthetic Spring",
+  "patch": "14.4",
+  "series_id": "synthetic-example-series",
+  "game_number": 1,
+  "blue_series_wins_before": 0,
+  "red_series_wins_before": 0,
+  "blue_team": "SYN_ALPHA",
+  "red_team": "SYN_BRAVO",
+  "blue_players": [
+    "SYN_ALPHA_top",
+    "SYN_ALPHA_jungle",
+    "SYN_ALPHA_mid",
+    "SYN_ALPHA_bottom",
+    "SYN_ALPHA_support"
+  ],
+  "red_players": [
+    "SYN_BRAVO_top",
+    "SYN_BRAVO_jungle",
+    "SYN_BRAVO_mid",
+    "SYN_BRAVO_bottom",
+    "SYN_BRAVO_support"
+  ],
+  "blue_picks": ["Aegis", "Bramble", "Cipher", "Dawn", "Ember"],
+  "red_picks": ["Atlas", "Brook", "Cinder", "Drift", "Echo"],
+  "blue_bans": ["Fable", "Gale", "Haven", "Ion", "Jade"],
+  "red_bans": ["Kite", "Lumen", "Morrow", "Nova", "Onyx"],
+  "first_pick_side": "blue",
+  "fearless_bans": []
+}

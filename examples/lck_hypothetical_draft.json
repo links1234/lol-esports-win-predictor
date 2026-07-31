@@ -1,0 +1,60 @@
+{
+  "request_schema_version": "2",
+  "match_timestamp": "2026-08-01T12:00:00+00:00",
+  "league": "LoL Champions Korea",
+  "tournament": "LCK 2026 Rounds 3-4",
+  "region": "Korea",
+  "tournament_level": "Primary",
+  "is_official": true,
+  "patch": "26.14",
+  "series_id": "future-hypothetical-hle-dk",
+  "game_number": 1,
+  "blue_series_wins_before": 0,
+  "red_series_wins_before": 0,
+  "blue_team": "Hanwha Life Esports",
+  "red_team": "Dplus Kia",
+  "blue_players": [
+    "Zeus",
+    "Kanavi",
+    "Zeka (Kim Geon-woo)",
+    "Gumayusi",
+    "Delight"
+  ],
+  "red_players": [
+    "Siwoo",
+    "Lucid (Choi Yong-hyeok)",
+    "ShowMaker",
+    "Smash (Shin Geum-jae)",
+    "Career"
+  ],
+  "blue_picks": [
+    "Gnar",
+    "Qiyana",
+    "Galio",
+    "Lucian",
+    "Milio"
+  ],
+  "red_picks": [
+    "Jax",
+    "Jarvan IV",
+    "Syndra",
+    "Yunara",
+    "Lulu"
+  ],
+  "blue_bans": [
+    "Locke",
+    "Jayce",
+    "Caitlyn",
+    "Vayne",
+    "Tristana"
+  ],
+  "red_bans": [
+    "Nocturne",
+    "Poppy",
+    "Akali",
+    "Twisted Fate",
+    "Wukong"
+  ],
+  "first_pick_side": "red",
+  "fearless_bans": []
+}

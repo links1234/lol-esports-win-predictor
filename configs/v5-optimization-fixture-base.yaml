@@ -1,0 +1,70 @@
+experiment_name: synthetic-v5-optimization
+model_version: fixture-v5-optimization
+random_seed: 20260730
+
+features:
+  feature_schema_version: point-in-time-v5
+  elo_initial_rating: 1500.0
+  elo_k_factor: 24.0
+  player_elo_k_factor: 12.0
+  form_window: 10
+  rate_prior_strength: 12.0
+  player_champion_prior_strength: 8.0
+  synergy_prior_strength: 24.0
+  matchup_prior_strength: 20.0
+  rating_half_life_days: 365.0
+  region_elo_k_factor: 12.0
+  regional_rating_levels:
+    - Primary
+    - Premier
+  regional_rating_excluded_regions:
+    - International
+
+splits:
+  validation_start_timestamp: 2026-01-01T00:00:00+00:00
+  test_start_timestamp: 2027-01-01T00:00:00+00:00
+  calibration_fraction_within_train: 0.10
+  refit_before_test: true
+
+models:
+  logistic_c: 0.25
+  gradient_boosting_learning_rate: 0.04
+  gradient_boosting_max_iter: 20
+  gradient_boosting_max_leaf_nodes: 8
+  gradient_boosting_l2_regularization: 2.0
+  recency_half_life_days: 365.0
+  catboost_iterations: 20
+  catboost_depth: 4
+  catboost_learning_rate: 0.05
+  catboost_l2_leaf_regularization: 8.0
+  catboost_random_strength: 0.5
+  elo_logistic_blend_elo_weight: 0.30
+  production_calibration_fraction: 0.10
+
+modeling_population:
+  require_official: true
+  tournament_levels:
+    - Primary
+    - Premier
+
+backtest:
+  fold_count: 3
+  validation_fraction_per_fold: 0.10
+  test_fraction_per_fold: 0.10
+  bootstrap_iterations: 100
+  minimum_breakdown_sample_count: 10
+
+prediction:
+  stale_after_days: 14
+
+release_gate:
+  enabled: true
+  minimum_holdout_games: 20
+  minimum_holdout_series: 10
+  minimum_log_loss_improvement: 0.001
+  maximum_expected_calibration_error: 0.20
+  maximum_major_league_log_loss_regression: 0.10
+  major_leagues:
+    - LCK
+    - LEC
+    - INTL

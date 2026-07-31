@@ -1,0 +1,67 @@
+study_name: leaguepedia-pre2026-v5-nested
+base_config: v4-regional-development.yaml
+development_cutoff_timestamp: 2026-01-01T00:00:00+00:00
+random_seed: 20260730
+trial_count: 300
+timeout_hours: 12.0
+worker_count: 4
+
+nested_validation:
+  outer_fold_count: 4
+  inner_fold_count: 3
+  validation_fraction_per_fold: 0.10
+  test_fraction_per_fold: 0.10
+  calibration_fraction_within_train: 0.10
+
+allocation:
+  cached_feature_trials_per_outer: 50
+  replay_feature_trials_per_outer: 25
+  families:
+    - logistic_regression
+    - histogram_gradient_boosting
+    - catboost
+    - elo_catboost_blend
+    - dynamic_bradley_terry
+
+selection:
+  maximum_expected_calibration_error: 0.04
+  maximum_major_league_log_loss_regression: 0.01
+  minimum_breakdown_sample_count: 100
+  require_no_inner_fold_regression_vs_elo: true
+  fallback_candidate: elo_catboost_regional_raw_blend_50
+
+feature_replay_space:
+  elo_k_factor: [12.0, 18.0, 24.0, 30.0, 36.0]
+  player_elo_k_factor: [6.0, 9.0, 12.0, 16.0, 20.0]
+  region_elo_k_factor: [6.0, 9.0, 12.0, 18.0, 24.0]
+  form_window: [5, 8, 10, 15, 20]
+  rate_prior_strength: [6.0, 9.0, 12.0, 18.0, 24.0]
+  player_champion_prior_strength: [4.0, 6.0, 8.0, 12.0, 16.0]
+  synergy_prior_strength: [12.0, 18.0, 24.0, 32.0]
+  matchup_prior_strength: [10.0, 15.0, 20.0, 30.0]
+  rating_half_life_days: [120.0, 240.0, 365.0, 540.0, 730.0]
+
+search_space:
+  logistic_c: [0.01, 5.0]
+  histogram_learning_rate: [0.015, 0.12]
+  histogram_iterations: [100, 400]
+  histogram_max_leaf_nodes: [7, 31]
+  histogram_l2_regularization: [0.1, 20.0]
+  catboost_iterations: [150, 700]
+  catboost_depth: [4, 8]
+  catboost_learning_rate: [0.02, 0.10]
+  catboost_l2_leaf_regularization: [3.0, 30.0]
+  catboost_random_strength: [0.0, 1.5]
+  catboost_rsm: [0.65, 1.0]
+  elo_blend_weight: [0.25, 0.75]
+  bradley_terry_c: [0.005, 2.0]
+  bradley_terry_recency_half_life_days: [120.0, 900.0]
+  bradley_terry_player_weight: [0.25, 1.5]
+  bradley_terry_champion_weight: [0.10, 1.25]
+
+calibration_methods:
+  logistic_regression: [native, platt, beta]
+  histogram_gradient_boosting: [native, platt, beta, isotonic]
+  catboost: [native, platt, beta, isotonic]
+  elo_catboost_blend: [native, platt, beta]
+  dynamic_bradley_terry: [native, platt, beta]

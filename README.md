@@ -1,200 +1,270 @@
-# LoL Draft‑Based Win Predictor
+# LoL Esports Win Predictor
 
-**Local Python tool to predict League of Legends match outcomes based on draft, team, patch, and player features.**
+This project estimates the blue-side win probability for a professional League of Legends game from information available before the game begins.
+It was motivated by an interest in competitive League, draft strategy, and the gap between an intuitive prediction and one that survives chronological testing.
+The evaluated model uses team, roster, player, patch, side, series, pick, and ban history.
+It never uses kills, gold, objectives, duration, or other in-game outcomes from the target game.
 
----
+The repository is a research project and command-line tool, not a betting system or a claim of live predictive performance.
 
-## Table of Contents
+## Verified scope
 
-1. [Prerequisites](#prerequisites)
-2. [Installation](#installation)
-3. [Configuration](#configuration)
-4. [Usage](#usage)
-   - [Fetch Leagues](#fetch-leagues)
-   - [Fetch Schedule](#fetch-schedule)
-   - [Interactive Python](#interactive-python)
-5. [Project Structure](#project-structure)
-6. [Testing](#testing)
-7. [Development Workflow](#development-workflow)
-8. [Contributing](#contributing)
-9. [License](#license)
+- Fetches historical game and draft records from a pinned Leaguepedia Cargo export.
+- Adapts Oracle's Elixir CSV and XLSX files through a separate ingestion command.
+- Quarantines malformed source games instead of guessing missing values.
+- Stores canonical matches and feature provenance in DuckDB.
+- Replays team Elo, player Elo, form, roster, champion, patch, synergy, matchup, side, and series state in timestamp order.
+- Compares blue-side frequency, Elo, logistic-regression ablations, histogram gradient boosting, and a fixed Elo/logistic blend.
+- Uses rolling-origin development folds followed by fixed 2026 validation and holdout intervals.
+- Saves checksum-verified model artifacts and uses the same feature builder for training and prediction.
+- Provides unit, integration, leakage, repository-hygiene, and end-to-end tests.
 
----
+This release does not use XGBoost, TensorFlow, a Siamese network, MLflow, or a Riot/AWS model baseline.
+Those technologies appeared in legacy experiments or future-work notes but are not part of the verified release.
 
-## Prerequisites
+## Data and coverage
 
-- **Python 3.8+** installed on your system.
-- **Git** for version control.
-- (Recommended) **VS Code** or any IDE comfortable with Python.
+The verified snapshot comes from [Leaguepedia Cargo](https://lol.fandom.com/wiki/Special:CargoExport) and covers January 1, 2020 through July 30, 2026.
+The pinned source file contains 95,579 games.
+Canonical ingestion accepted 93,032 games and quarantined 2,547 games with missing or contradictory fields.
+The snapshot includes major, regional, academy, amateur, showmatch, and other competitions listed by Leaguepedia, so it should not be interpreted as a majors-only dataset.
 
----
+Leaguepedia states that content it can license is available under [CC BY-SA 3.0](https://lol.fandom.com/wiki/Leaguepedia%3ACopyrights).
+Raw snapshots, databases, and derived model artifacts are ignored by Git.
+Users should fetch the source directly, retain attribution, and verify the source terms before redistribution.
 
-## Installation
+## Features and model
 
-1. **Clone the repository**
+Every historical feature is calculated from matches strictly earlier than the target timestamp.
+Feature groups include:
 
-   ```bash
-   git clone https://github.com/<your-username>/lol-draft-predictor.git
-   cd lol-draft-predictor
-   ```
+- Blue-side and known first-pick priors.
+- Pre-match team and role-level player Elo.
+- Recent team form, head-to-head history, roster experience, and roster continuity.
+- Historical champion, player-champion, ban, synergy, and role-matchup strength.
+- Patch number, game number, pre-game series score, and Fearless Draft exclusions when supplied.
+- Coverage indicators so unknown teams, players, and champions fall back to neutral values instead of receiving fabricated history.
 
-2. **Create & activate a virtual environment**
+The frozen release compares seven candidates declared in `configs/current-release.yaml`.
+Candidate selection uses validation log loss only.
+The final holdout is evaluated once after selection.
 
-   ```bash
-   python3 -m venv venv          # create the virtualenv
-   source venv/bin/activate      # macOS/Linux
-   # OR on Windows PowerShell:
-   .\venv\Scripts\Activate.ps1
-   ```
+## Evaluation
 
-3. **Install dependencies**
+Estimator development ends before January 1, 2026.
+Validation covers January 1 through March 31, 2026.
+The final holdout contains 5,257 games from April 1 through July 30, 2026.
+All figures below were reproduced from a fresh database and locked environment on July 31, 2026.
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+| Candidate | Validation log loss | Holdout log loss | Holdout accuracy |
+| --- | ---: | ---: | ---: |
+| Blue-side frequency | 0.6933 | 0.6909 | 53.40% |
+| Elo only | 0.6571 | 0.6340 | 63.88% |
+| Team and roster logistic | 0.6083 | 0.6043 | 67.17% |
+| Draft-only logistic | 0.6835 | 0.6852 | 55.41% |
+| Combined logistic | **0.6044** | 0.6005 | 67.57% |
+| Histogram gradient boosting | 0.6050 | **0.6001** | 67.28% |
+| 30% Elo plus 70% combined logistic | 0.6110 | 0.6036 | 67.57% |
 
----
+The selected combined logistic model produced 0.6005 log loss, 0.2069 Brier score, 0.0140 expected calibration error, 0.7363 ROC-AUC, and 67.57 percent accuracy on the holdout.
+It improved holdout log loss over Elo by 0.0335, with a series-clustered 95 percent interval from -0.0407 to -0.0264 for selected minus Elo.
 
-## Configuration
+The preregistered release gate still rejected the combined model because it regressed against Elo by 0.0167 log loss on the 272-game LPL slice, above the fixed 0.01 limit.
+The release recommendation therefore falls back to the simpler Elo model.
+This is a retrospective result on an opened holdout, not evidence of future or live performance.
 
-1. **Environment variables**
+![Holdout calibration plot](docs/assets/holdout-calibration.svg)
 
-   - Copy the example env file and update:
-     ```bash
-     cp .env.example .env
-     ```
-   - Open `.env` and set:
-     ```ini
-     LOLESPORTS_API_KEY=your_real_api_key_here
-     ```
+The calibration plot shows ten equal-width probability bins for the selected combined logistic model.
+The dashed diagonal represents perfect calibration, and point size reflects the number of games in each bin.
 
-2. **Verify** that `.env` is listed in `.gitignore` to keep your key private.
+Full source hashes, quarantine counts, league breakdowns, and release-gate evidence are in [the release report](docs/current-release-results.md).
 
----
+## Architecture
 
-## Usage
+```mermaid
+flowchart LR
+    A[Leaguepedia Cargo or Oracle's Elixir] --> B[Validated source adapter]
+    B --> C[Canonical match schema]
+    C --> D[(DuckDB)]
+    D --> E[Point-in-time feature replay]
+    E --> F[Chronological backtest and validation]
+    F --> G[Release gate]
+    G -->|all gates pass| H[Selected model artifact]
+    G -->|gate fails| I[Elo fallback artifact]
+    H --> J[JSON prediction]
+    I --> J
+```
 
-Once setup is complete and your virtual environment is active, you can run the following commands:
+## Setup
 
-### Fetch Leagues
+Python 3.12 and [uv](https://docs.astral.sh/uv/) are required.
 
 ```bash
-python scripts/fetch_leagues.py
+git clone https://github.com/links1234/lol-draft-predictor.git lol-esports-win-predictor
+cd lol-esports-win-predictor
+uv sync --locked --all-groups
 ```
 
-Prints the list of Leagues available via the LoL Esports API.
+No API key is required for the documented Leaguepedia workflow.
 
-### Fetch Schedule
+## Data preparation
 
-1. Edit or create a new script in `scripts/fetch_schedule.py`:
-   ```python
-   from lolpredictor.api_client import LoLEsportsAPIClient
-
-   client = LoLEsportsAPIClient()
-   data = client.get_schedule([123, 456])  # replace with real league IDs
-   print(data)
-   ```
-2. Run:
-```bash
-python scripts/fetch_schedule.py
-```
-
-### Fetch Game Draft
+Fetch the pinned interval into the ignored `data/raw/` directory:
 
 ```bash
-python scripts/fetch_game_draft.py <event_id> <game_id>
+uv run lolpredictor fetch-leaguepedia \
+  --output data/raw/leaguepedia-2020-2026.json \
+  --start 2020-01-01T00:00:00+00:00 \
+  --end 2026-07-30T19:00:00+00:00 \
+  --retrieved-at 2026-07-30T20:35:32+00:00 \
+  --page-size 5000
 ```
 
-Displays the champion picks for both teams for a specific game.
-
-```python
-from lolpredictor.api_client import LoLEsportsAPIClient
-client = LoLEsportsAPIClient()
-draft = client.get_game_draft(123456789, 1)
-print("Blue:", draft["blue_side"])
-print("Red:", draft["red_side"])
-```
-
-### Interactive Python
-
-You can also import and use the client in a Python REPL or Jupyter notebook:
-
-```python
-from lolpredictor.api_client import LoLEsportsAPIClient
-client = LoLEsportsAPIClient()
-leagues = client.get_leagues()
-print(leagues)
-```
-
----
-
-## Project Structure
-
-```
-lol-draft-predictor/
-├── .env.example          # Template for your API key
-├── .gitignore            # Ignored files (venv, .env, egg-info, etc.)
-├── README.md             # This file
-├── requirements.txt      # Pinned dependencies
-├── setup.py              # Installable package definition
-├── lolpredictor/         # Main package
-│   ├── __init__.py       # Python package marker
-│   └── api_client.py     # LoL Esports API wrapper
-├── scripts/              # Utility scripts
-│   └── fetch_leagues.py  # Example: fetch and list leagues
-├── tests/                # Unit tests
-│   └── test_api_client.py
-└── venv/                 # Virtual environment (ignored)
-```
-
----
-
-## Testing
-
-Run all unit tests with:
+Ingest and generate point-in-time features:
 
 ```bash
-pytest -q
+uv run lolpredictor ingest-leaguepedia \
+  --database var/current-release/matches.duckdb \
+  --input data/raw/leaguepedia-2020-2026.json
+
+uv run lolpredictor features \
+  --database var/current-release/matches.duckdb \
+  --config configs/current-release.yaml
 ```
 
-Ensure tests pass before merging any changes.
+## Train and evaluate
 
----
+Run the rolling-origin development backtest without opening the final holdout:
 
-## Development Workflow
+```bash
+uv run lolpredictor backtest \
+  --database var/current-release/matches.duckdb \
+  --config configs/current-release.yaml \
+  --reports var/current-release/backtest-reports
+```
 
-1. **Always activate** your virtualenv.
-2. **Install new dependencies** via `pip install <pkg>` and update `requirements.txt`:
-   ```bash
-   pip install <new-package>
-   pip freeze > requirements.txt
-   ```
-3. **Make changes** in feature branches:
-   ```bash
-   git checkout -b feature/your-feature-name
-   # code, add tests
-   git add .
-   git commit -m "Add <feature>"
-   git push -u origin feature/your-feature-name
-   ```
-4. Open a **Pull Request** on GitHub, request reviews, and merge once approved.
+Train the frozen candidate set, select on validation log loss, and evaluate the holdout:
 
----
+```bash
+uv run lolpredictor train \
+  --database var/current-release/matches.duckdb \
+  --config configs/current-release.yaml \
+  --registry var/current-release/evaluation-artifacts \
+  --reports var/current-release/release-reports
+```
 
-## Contributing
+Apply the fixed release gates:
 
-1. Fork the repo and clone your fork.
-2. Follow the development workflow above.
-3. Keep PRs small and focused.
-4. Write or update tests for any new behavior.
+```bash
+uv run lolpredictor release-gate \
+  --config configs/current-release.yaml \
+  --training-report var/current-release/release-reports/training-report.json \
+  --backtest-report var/current-release/backtest-reports/backtest-report.json \
+  --output var/current-release/release-reports/promotion-report.json
+```
 
----
+Re-evaluate the saved evaluation artifact in a separate process:
+
+```bash
+uv run lolpredictor evaluate \
+  --database var/current-release/matches.duckdb \
+  --artifact "EVALUATION_ARTIFACT_DIRECTORY" \
+  --output var/current-release/release-reports/evaluation.json
+```
+
+## Prediction
+
+Refit the gate recommendation through all accepted games:
+
+```bash
+uv run lolpredictor refit \
+  --database var/current-release/matches.duckdb \
+  --config configs/current-release.yaml \
+  --training-report var/current-release/release-reports/training-report.json \
+  --promotion-report var/current-release/release-reports/promotion-report.json \
+  --registry var/current-release/production-artifacts \
+  --reports var/current-release/production-reports
+```
+
+Predict a hypothetical completed draft whose timestamp is after the artifact cutoff:
+
+```bash
+uv run lolpredictor predict \
+  --artifact "PRODUCTION_ARTIFACT_DIRECTORY" \
+  --input examples/current_sample_draft.json \
+  --output var/current-release/production-reports/sample-prediction.json
+```
+
+The verified Elo fallback example returned:
+
+```json
+{
+  "blue_win_probability": 0.6419212836469772,
+  "red_win_probability": 0.3580787163530228,
+  "estimate_type": "post_draft_pregame",
+  "data_cutoff_timestamp": "2026-07-30T18:12:00Z",
+  "warnings": [
+    "Unknown home regions: Hanwha Life Esports, Dplus Kia; using neutral regional priors"
+  ]
+}
+```
+
+Because the release gate chose Elo, this production example is team-strength sensitive but not draft sensitive.
+The stronger combined model remains an evaluation artifact only.
+
+## Tests and quality checks
+
+Run the same checks used by CI:
+
+```bash
+uv lock --check
+uv run ruff format --check .
+uv run ruff check .
+uv run mypy
+uv run pytest --cov=src/lolpredictor --cov-report=term-missing --cov-fail-under=85
+uv build
+```
+
+Run the complete legal synthetic fixture, including ingestion, feature replay, training, evaluation, artifact loading, and prediction:
+
+```bash
+uv run lolpredictor run-all --workdir var/fixture-run
+```
+
+## Repository structure
+
+```text
+configs/                  Frozen experiment and release settings
+docs/                     Audit, architecture, and evidence reports
+examples/                 Validated prediction requests
+src/lolpredictor/         Ingestion, features, models, artifacts, and CLI
+tests/unit/               Parsing, schema, feature, split, and model tests
+tests/integration/        Shared data-to-prediction tests
+tests/e2e/                User-facing command workflows
+```
+
+Generated databases, raw data, model binaries, reports, caches, virtual environments, MLflow state, and credentials are excluded by `.gitignore`.
+
+## Limitations
+
+- Leaguepedia is community-maintained and historical rows can change.
+- The source population mixes competition tiers and includes non-target events.
+- First-pick coverage is incomplete, and missing values are not inferred from side.
+- Team and player aliases can change over time.
+- The final 2026 holdout has been opened and cannot be reused to tune another model.
+- The release gate selected Elo, so the recommended artifact does not use champion draft features.
+- Prediction is exposed through a CLI and JSON contract, not a hosted API or automated live-draft service.
+
+## Collaboration and attribution
+
+This project began as collaborative work with [MauriceAK](https://github.com/MauriceAK).
+Git history attributes the initial API scaffold and early ETL/model work to MauriceAK, and later API, data-processing, prediction, and experimental branches to Daud Asif.
+The cleanup preserves both lineages and does not reuse legacy model binaries, raw data, credentials, or invalid performance claims.
+See [the legacy audit](docs/legacy-audit.md) for the commit and methodology review.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-*Happy drafting!*
-
+The original API README declared the project MIT-licensed, but neither source repository contains a license file and the history includes collaborative work.
+The safest public release is to add an MIT `LICENSE` only after both contributors confirm that choice.
+Leaguepedia-derived data remains subject to its separate CC BY-SA terms and is not bundled with this repository.

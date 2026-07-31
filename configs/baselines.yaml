@@ -1,0 +1,37 @@
+experiment_name: synthetic-baselines
+model_version: fixture-baselines-v2
+random_seed: 20260730
+
+features:
+  feature_schema_version: point-in-time-v3
+  elo_initial_rating: 1500.0
+  elo_k_factor: 24.0
+  player_elo_k_factor: 16.0
+  form_window: 8
+  rate_prior_strength: 6.0
+  player_champion_prior_strength: 3.0
+  synergy_prior_strength: 12.0
+  matchup_prior_strength: 10.0
+
+splits:
+  train_fraction: 0.60
+  validation_fraction: 0.20
+  calibration_fraction_within_train: 0.20
+
+models:
+  logistic_c: 0.5
+  gradient_boosting_learning_rate: 0.05
+  gradient_boosting_max_iter: 120
+  gradient_boosting_max_leaf_nodes: 15
+  gradient_boosting_l2_regularization: 1.0
+  elo_logistic_blend_elo_weight: 0.30
+  production_calibration_fraction: 0.08
+
+backtest:
+  fold_count: 3
+  validation_fraction_per_fold: 0.10
+  test_fraction_per_fold: 0.10
+  bootstrap_iterations: 500
+
+prediction:
+  stale_after_days: 45

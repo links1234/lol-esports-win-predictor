@@ -1,19 +1,37 @@
-# Byte‑compiled / cache
+# Python
 __pycache__/
 *.py[cod]
+*.egg-info/
+build/
+dist/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
 
-# Virtual environment
+# Environments and credentials
+.env
+.env.*
+!.env.example
+.venv/
 venv/
 
-# Environment files
-.env
-.env.* 
+# Local data and generated state
+*.duckdb
+*.duckdb.wal
+artifacts/
+mlruns/
+models/
+reports/
+var/
 
-# PyTest cache
-.pytest_cache/
+# Raw and derived datasets
+data/raw/
+data/processed/
+*.parquet
 
-# Editors
+# Editors and operating systems
 *.swp
-
-# Egg‑info (from pip install -e .)
-*.egg-info/
+.DS_Store
