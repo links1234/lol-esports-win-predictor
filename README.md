@@ -101,7 +101,7 @@ flowchart LR
 Python 3.12 and [uv](https://docs.astral.sh/uv/) are required.
 
 ```bash
-git clone https://github.com/links1234/lol-draft-predictor.git lol-esports-win-predictor
+git clone https://github.com/links1234/lol-esports-win-predictor.git
 cd lol-esports-win-predictor
 uv sync --locked --all-groups
 ```

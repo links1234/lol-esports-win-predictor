@@ -3,7 +3,7 @@
 ## Scope and safety
 
 This document records research performed before the version 2 implementation.
-The canonical repository at `links1234/lol-draft-predictor` is the only implementation source of truth.
+The canonical repository at `links1234/lol-esports-win-predictor` is the only implementation source of truth.
 The repositories and checkout listed below were inspected as read-only research material.
 No legacy implementation is merged into version 2.
 
@@ -28,7 +28,7 @@ The only environment template is `.env.example`, which contains placeholders.
 
 ## Canonical repository
 
-Repository: `https://github.com/links1234/lol-draft-predictor`
+Repository: `https://github.com/links1234/lol-esports-win-predictor`
 
 Observed main commit: `4e1842a5393f72d03cbb99526cda264e8063b330`
 

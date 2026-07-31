@@ -30,7 +30,8 @@ LEAGUEPEDIA_LICENSE_NOTE = (
     "retain attribution and verify current Leaguepedia and Fandom terms before redistribution."
 )
 LEAGUEPEDIA_USER_AGENT = (
-    "lol-draft-predictor/0.2 (https://github.com/links1234/lol-draft-predictor; pregame research)"
+    "lol-esports-win-predictor/0.2 "
+    "(https://github.com/links1234/lol-esports-win-predictor; pregame research)"
 )
 
 LEAGUEPEDIA_QUERY_FIELDS = {
